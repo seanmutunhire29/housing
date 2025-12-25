@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Properties - {{ site_name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Find Student Housing</h1>
+        <p class="text-gray-600">Browse verified properties near your campus</p>
+    </div>
+    
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Filters Sidebar -->
+        <aside class="lg:w-1/4">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <h3 class="text-lg font-semibold mb-4">Filters</h3>
+                
+                <form method="get" id="filter-form">
+                    <!-- Search -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Search</label>
+                        <input type="text" name="query" value="{{ search_form.query.value|default:'' }}" 
+                               placeholder="Search properties..." 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Location</label>
+                        <input type="text" name="city" value="{{ search_form.city.value|default:'' }}" 
+                               placeholder="City or University" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    
+                    <!-- Price Range -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Price Range</label>
+                        <div class="flex gap-2">
+                            <input type="number" name="min_price" value="{{ search_form.min_price.value|default:'' }}" 
+                                   placeholder="Min" min="0"
+                                   class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                            <input type="number" name="max_price" value="{{ search_form.max_price.value|default:'' }}" 
+                                   placeholder="Max" min="0"
+                                   class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <!-- Property Type -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Property Type</label>
+                        <select name="property_type" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                            <option value="">Any Type</option>
+                            {% for value, label in search_form.fields.property_type.choices %}
+                            {% if value %}
+                            <option value="{{ value }}" {% if search_form.property_type.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Room Type -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Room Type</label>
+                        <select name="room_type" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                            <option value="">Any Room</option>
+                            {% for value, label in search_form.fields.room_type.choices %}
+                            {% if value %}
+                            <option value="{{ value }}" {% if search_form.room_type.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Bedrooms -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Bedrooms</label>
+                        <input type="number" name="bedrooms" value="{{ search_form.bedrooms.value|default:'' }}" 
+                               placeholder="Any" min="0"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    
+                    <!-- Amenities -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Amenities</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" name="furnished" id="furnished" value="true" 
+                                       {% if search_form.furnished.value %}checked{% endif %}
+                                       class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                <label for="furnished" class="ml-2 text-sm text-gray-700">Furnished</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="pet_friendly" id="pet_friendly" value="true"
+                                       {% if search_form.pet_friendly.value %}checked{% endif %}
+                                       class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                <label for="pet_friendly" class="ml-2 text-sm text-gray-700">Pet Friendly</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="utilities_included" id="utilities_included" value="true"
+                                       {% if search_form.utilities_included.value %}checked{% endif %}
+                                       class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                <label for="utilities_included" class="ml-2 text-sm text-gray-700">Utilities Included</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" name="has_parking" id="has_parking" value="true"
+                                       {% if search_form.has_parking.value %}checked{% endif %}
+                                       class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                <label for="has_parking" class="ml-2 text-sm text-gray-700">Parking Available</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="space-y-3">
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition">
+                            Apply Filters
+                        </button>
+                        <button type="button" onclick="resetFilters()"
+                                class="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition">
+                            Reset Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="mt-6 bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4">Property Statistics</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Properties</span>
+                        <span class="font-semibold">{{ total_properties }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Verified Listings</span>
+                        <span class="font-semibold">{{ verified_properties }}</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="lg:w-3/4">
+            <!-- Search Controls -->
+            <div class="mb-6 flex flex-col md:flex-row justify-between gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" id="quick-search" placeholder="Quick search..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                        <button onclick="quickSearch()" 
+                                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600">{{ page_obj.paginator.count }} properties found</span>
+                    <select id="sort-select" onchange="sortProperties()" 
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                        <option value="-created_at">Newest First</option>
+                        <option value="price_per_month">Price: Low to High</option>
+                        <option value="-price_per_month">Price: High to Low</option>
+                        <option value="-view_count">Most Popular</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Properties Grid -->
+            {% if properties %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for property in properties %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden property-card">
+                    <!-- Verified Badge -->
+                    {% if property.is_verified %}
+                    <div class="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                        <i class="fas fa-check-circle mr-1"></i> Verified
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Favorite Button -->
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'toggle_favorite' property.id %}" class="absolute top-2 right-2">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                            <i class="fas fa-heart {% if property.id in favorite_ids %}text-red-500{% else %}text-gray-400{% endif %}"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    <!-- Property Image -->
+                    {% if property.primary_image %}
+                    <a href="{% url 'property_detail' property.id %}">
+                        <img src="{{ property.primary_image.image.url }}" alt="{{ property.title }}" 
+                             class="w-full h-48 object-cover hover:opacity-90 transition">
+                    </a>
+                    {% else %}
+                    <a href="{% url 'property_detail' property.id %}">
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition">
+                            <i class="fas fa-home text-gray-400 text-4xl"></i>
+                        </div>
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Property Details -->
+                    <div class="p-4">
+                        <a href="{% url 'property_detail' property.id %}" class="block">
+                            <h3 class="font-semibold text-lg text-gray-800 hover:text-purple-600 transition mb-2">
+                                {{ property.title|truncatewords:6 }}
+                            </h3>
+                        </a>
+                        
+                        <!-- Location -->
+                        <p class="text-gray-600 text-sm mb-3">
+                            <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>
+                            {{ property.city }}, {{ property.state }}
+                        </p>
+                        
+                        <!-- Price and Type -->
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xl font-bold text-purple-600">{{ property.display_price }}</span>
+                            <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                {{ property.get_property_type_display }}
+                            </span>
+                        </div>
+                        
+                        <!-- Property Features -->
+                        <div class="flex items-center text-sm text-gray-500 mb-4">
+                            <span class="mr-4">
+                                <i class="fas fa-bed text-gray-400 mr-1"></i> {{ property.bedrooms }} beds
+                            </span>
+                            <span class="mr-4">
+                                <i class="fas fa-bath text-gray-400 mr-1"></i> {{ property.bathrooms }} baths
+                            </span>
+                            {% if property.area_sqft %}
+                            <span>
+                                <i class="fas fa-expand text-gray-400 mr-1"></i> {{ property.area_sqft|intcomma }} sqft
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- University Distance -->
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500">
+                                <i class="fas fa-university text-gray-400 mr-1"></i>
+                                {{ property.distance_to_university }} miles to {{ property.nearest_university|truncatewords:2 }}
+                            </span>
+                            <span class="text-gray-500">
+                                <i class="fas fa-eye text-gray-400 mr-1"></i> {{ property.view_count }}
+                            </span>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="mt-4 flex justify-between">
+                            <a href="{% url 'property_detail' property.id %}" 
+                               class="text-purple-600 hover:text-purple-700 font-medium text-sm">
+                                View Details
+                            </a>
+                            {% if user.is_authenticated and user.user_type == 'student' %}
+                            <a href="{% url 'create_inquiry' property.id %}" 
+                               class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                                <i class="fas fa-envelope mr-1"></i> Inquire
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.paginator.num_pages > 1 %}
+            <div class="mt-8 flex justify-center">
+                <nav class="inline-flex rounded-md shadow">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        Previous
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="px-3 py-2 border border-gray-300 bg-purple-600 text-white text-sm font-medium">
+                        {{ num }}
+                    </span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="px-3 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        {{ num }}
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        Next
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <!-- No Results -->
+            <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                <i class="fas fa-search text-gray-300 text-6xl mb-6"></i>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No properties found</h3>
+                <p class="text-gray-600 mb-6">Try adjusting your filters or search criteria</p>
+                <button onclick="resetFilters()" 
+                        class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition">
+                    Reset All Filters
+                </button>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<script>
+function resetFilters() {
+    const form = document.getElementById('filter-form');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        if (input.type === 'text' || input.type === 'number') {
+            input.value = '';
+        } else if (input.type === 'checkbox') {
+            input.checked = false;
+        } else if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+        }
+    });
+    form.submit();
+}
+
+function quickSearch() {
+    const query = document.getElementById('quick-search').value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('query', query);
+    window.location.href = url.toString();
+}
+
+function sortProperties() {
+    const sortValue = document.getElementById('sort-select').value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('ordering', sortValue);
+    window.location.href = url.toString();
+}
+
+// Set initial sort value
+const urlParams = new URLSearchParams(window.location.search);
+const ordering = urlParams.get('ordering');
+if (ordering) {
+    document.getElementById('sort-select').value = ordering;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Find Your Perfect Student Housing - {{ site_name }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="gradient-bg text-white py-20">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                Find Your Perfect Student Housing
+            </h1>
+            <p class="text-xl mb-8 opacity-90">
+                Verified listings, trusted landlords, and everything you need for a comfortable stay near campus.
+            </p>
+            
+            <!-- Search Form -->
+            <form method="get" action="{% url 'property_list' %}" class="bg-white rounded-lg shadow-xl p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Location</label>
+                        <input type="text" name="city" placeholder="City, University, or Area" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Move-in Date</label>
+                        <input type="date" name="available_from" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2">Max Budget</label>
+                        <input type="number" name="max_price" placeholder="Maximum price" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+                    </div>
+                </div>
+                <button type="submit" 
+                        class="w-full md:w-auto mt-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-medium hover:opacity-90 transition">
+                    <i class="fas fa-search mr-2"></i> Search Properties
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="text-4xl font-bold text-purple-600 mb-2">{{ total_properties|intcomma }}</div>
+                <div class="text-gray-600">Total Properties</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-purple-600 mb-2">{{ verified_properties|intcomma }}</div>
+                <div class="text-gray-600">Verified Listings</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-purple-600 mb-2">{{ active_landlords|intcomma }}</div>
+                <div class="text-gray-600">Active Landlords</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Why Choose Student Housing Platform?</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-shield-check text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Verified Listings</h3>
+                <p class="text-gray-600">Every property and landlord is verified by our team to ensure safety and reliability.</p>
+            </div>
+            
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Campus Proximity</h3>
+                <p class="text-gray-600">Find housing close to your university with detailed distance and transport information.</p>
+            </div>
+            
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-star text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Student Reviews</h3>
+                <p class="text-gray-600">Read authentic reviews from fellow students who have lived in these properties.</p>
+            </div>
+            
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-lock text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Secure Booking</h3>
+                <p class="text-gray-600">Book directly with landlords through our secure platform with payment protection.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Properties -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-12">
+            <h2 class="text-3xl font-bold">Featured Properties</h2>
+            <a href="{% url 'property_list' %}" class="text-purple-600 hover:text-purple-700 font-medium">
+                View All Properties <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for property in featured_properties %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden property-card">
+                {% if property.primary_image %}
+                <img src="{{ property.primary_image.image.url }}" alt="{{ property.title }}" 
+                     class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-home text-gray-400 text-4xl"></i>
+                </div>
+                {% endif %}
+                
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-lg">{{ property.title|truncatewords:5 }}</h3>
+                        <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded">
+                            {{ property.display_price }}
+                        </span>
+                    </div>
+                    
+                    <p class="text-gray-600 text-sm mb-3">
+                        <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>
+                        {{ property.city }}, {{ property.state }}
+                    </p>
+                    
+                    <div class="flex items-center text-sm text-gray-500 mb-4">
+                        <span class="mr-4">
+                            <i class="fas fa-bed text-gray-400 mr-1"></i> {{ property.bedrooms }} beds
+                        </span>
+                        <span>
+                            <i class="fas fa-bath text-gray-400 mr-1"></i> {{ property.bathrooms }} baths
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">
+                            <i class="fas fa-university text-gray-400 mr-1"></i>
+                            {{ property.distance_to_university }} miles
+                        </span>
+                        <a href="{% url 'property_detail' property.id %}" 
+                           class="text-purple-600 hover:text-purple-700 text-sm font-medium">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+    <div class="container mx-auto px-4 text-center text-white">
+        <h2 class="text-3xl font-bold mb-4">Are You a Landlord?</h2>
+        <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+            List your property and reach thousands of verified students looking for housing.
+        </p>
+        
+        {% if user.is_authenticated and user.user_type == 'landlord' %}
+        <a href="{% url 'property_create' %}" 
+           class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition inline-flex items-center">
+            <i class="fas fa-plus mr-2"></i> List Your Property
+        </a>
+        {% else %}
+        <a href="{% url 'register' %}" 
+           class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition inline-flex items-center">
+            <i class="fas fa-user-plus mr-2"></i> Get Started as Landlord
+        </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
